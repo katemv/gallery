@@ -1,6 +1,7 @@
 // Core
-import React, {ChangeEvent, FormEvent, Fragment, useState} from 'react';
+import React, {ChangeEvent, FormEvent, Fragment, useState, memo} from 'react';
 import {useHistory, useParams} from "react-router";
+import {useCallbackOne} from "use-memo-one";
 
 // Context
 import {HomeActionsContext, HomeStateContext} from "../../providers/HomeProvider";
@@ -35,11 +36,11 @@ const Details = () => {
 
     const image = images.find(el => el.id === imageId);
 
-    const [title, setTitle] = useState(image!.tooltip.title);
-    const [position, setPosition] = useState(image!.tooltip.position);
-    const [color, setColor] = useState(image!.tooltip.color);
+    const [title, setTitle] = useState<string>(image!.tooltip.title);
+    const [position, setPosition] = useState<TooltipPosition>(image!.tooltip.position);
+    const [color, setColor] = useState<'dark' | 'light'>(image!.tooltip.color);
 
-    const handleUpdateTooltip = (e: FormEvent) => {
+    const handleUpdateTooltip = useCallbackOne((e: FormEvent) => {
         e.preventDefault();
 
         const payload = {
@@ -53,7 +54,7 @@ const Details = () => {
 
         updateTooltip(payload);
         history.push(Routes.HOME);
-    };
+    }, [title, position, color]);
 
     return (
         <Container>
@@ -162,4 +163,4 @@ const Details = () => {
     )
 };
 
-export default Details;
+export default memo(Details);

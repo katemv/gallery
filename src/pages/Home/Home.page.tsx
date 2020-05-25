@@ -1,7 +1,8 @@
 // Core
-import * as React from 'react';
+import React, {memo} from 'react';
 import {ChangeEvent, useRef, useState} from 'react';
 import {Link} from 'react-router-dom';
+import {useCallbackOne} from "use-memo-one";
 
 // Context
 import {HomeActionsContext, HomeStateContext} from '../../providers/HomeProvider';
@@ -19,31 +20,32 @@ const Home = () => {
     const { toggle, mode } = useTheme();
     const { state: { images, selectedImages } } = HomeStateContext();
     const { updateSelectedImages, deleteImages, addImage, clearSelectedImages } = HomeActionsContext();
-    const [isEditing, setIsEditing] = useState(false);
-    const [id, setId] = useState(1);
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [id, setId] = useState<number>(1);
     const input = useRef<HTMLInputElement | null>(null);
 
-    const handleEdit = () => {
+    const handleEdit = useCallbackOne(() => {
         setIsEditing(!isEditing);
 
         if (isEditing) {
             deleteImages();
+            clearSelectedImages();
         }
-    };
+    }, [isEditing]);
 
-    const handleSelect = (id: string) => {
+    const handleSelect = useCallbackOne((id: string) => {
         if (isEditing) {
             updateSelectedImages({ id });
         }
-    };
+    }, [isEditing]);
 
-    const handleAdd = () => {
+    const handleAdd = useCallbackOne(() => {
         if (input && input.current) {
             input.current!.click();
         }
-    };
+    }, [input]);
 
-    const handleUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleUpload = useCallbackOne((e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files !== null) {
             const src = window.URL.createObjectURL(e.target.files[0]);
 
@@ -60,12 +62,12 @@ const Home = () => {
             addImage({image: newImage});
             setId(id + 1);
         }
-    };
+    }, [id]);
 
-    const handleCancel = () => {
+    const handleCancel = useCallbackOne(() => {
         clearSelectedImages();
         setIsEditing(false);
-    };
+    }, []);
 
     return (
         <Container>
@@ -105,4 +107,4 @@ const Home = () => {
     )
 };
 
-export default Home;
+export default memo(Home);
