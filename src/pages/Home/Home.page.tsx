@@ -15,13 +15,13 @@ import {IImage, TooltipPosition} from '../../store/Home/HomeTypes';
 import Button from '../../components/Button/Button.component';
 import Tooltip from '../../components/Tooltip/Tooltip.component';
 import {ButtonsContainer, Container, Grid, Header, Heading, HiddenInput, Image, Item} from './styles';
+import {getUniqueID} from "../../utils/getUniqueId";
 
 const Home = () => {
     const { toggle, mode } = useTheme();
     const { state: { images, selectedImages } } = HomeStateContext();
     const { updateSelectedImages, deleteImages, addImage, clearSelectedImages } = HomeActionsContext();
     const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [id, setId] = useState<number>(1);
     const input = useRef<HTMLInputElement | null>(null);
 
     const handleEdit = useCallbackOne(() => {
@@ -48,11 +48,12 @@ const Home = () => {
     const handleUpload = useCallbackOne((e: ChangeEvent<HTMLInputElement>) => {
         if (e.target.files !== null) {
             const src = window.URL.createObjectURL(e.target.files[0]);
+            const id = getUniqueID();
 
             const newImage: IImage = {
-                id: `_fake${id}`,
+                id: `_fake_${id}`,
                 tooltip: {
-                    title: `Uploaded ${id}`,
+                    title: `${id}`,
                     position: TooltipPosition.TOP,
                     color: 'dark'
                 },
@@ -60,9 +61,8 @@ const Home = () => {
             };
 
             addImage({image: newImage});
-            setId(id + 1);
         }
-    }, [id]);
+    }, []);
 
     const handleCancel = useCallbackOne(() => {
         clearSelectedImages();
